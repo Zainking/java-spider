@@ -13,6 +13,6 @@ public class News implements Viewable {
 
     public void display() {
         System.out.println("|Title|" + title);
-        System.out.println("Content" + content);
+        System.out.println("|Content|" + content);
     }
 }

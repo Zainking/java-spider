@@ -1,5 +1,6 @@
 package controller;
 
+import active.SpiderThread;
 import model.entities.RelatedUrlNews;
 import model.reader.UrlNewsReader;
 import view.ListViewer;
@@ -36,6 +37,39 @@ public class Run {
                     newsQueue.add(next);
                     visited.add(url);
                 }
+            }
+        }
+
+        new ListViewer(results).display();
+    }
+    public static void startMultiThread() throws Exception {
+        String startUrl = "https://readhub.me/topic/5bMmlAm75lD";
+
+        RelatedUrlNews startNews = UrlNewsReader.read(startUrl);
+
+        int count = 0;
+
+        Set<String> visited = new HashSet<String>();
+        visited.add(startUrl);
+
+        Queue<RelatedUrlNews> newsQueue = new LinkedList();
+        newsQueue.add(startNews);
+
+        ArrayList<Viewable> results = new ArrayList();
+
+        while(!newsQueue.isEmpty() && count <= maxURLNum) {
+            RelatedUrlNews current = newsQueue.poll();
+            results.add(current);
+            count++;
+            ArrayList<SpiderThread> spiders = new ArrayList();
+
+            for (Map.Entry<String, String> entry : current.getRelateds().entrySet()) {
+                String url = entry.getValue();
+                spiders.add(new SpiderThread(url, visited, newsQueue));
+            }
+
+            for(SpiderThread spider: spiders) {
+                spider.join();
             }
         }
 
